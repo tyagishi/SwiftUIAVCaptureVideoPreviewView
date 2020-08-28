@@ -44,8 +44,41 @@ public class AVCaptureModel : NSObject, AVCapturePhotoCaptureDelegate, Observabl
         }
     }
     
+    public func updateOutputOrientation(orientation: UIDeviceOrientation) {
+        guard let connection = self.photoOutput.connection(with: .video) else { return }
+        switch orientation {
+        case .portrait:
+            connection.videoOrientation = .portrait
+        case .portraitUpsideDown:
+            connection.videoOrientation = .portraitUpsideDown
+        case .landscapeLeft:
+            connection.videoOrientation = .landscapeRight
+        case .landscapeRight:
+            connection.videoOrientation = .landscapeLeft
+        default:
+            connection.videoOrientation = .portrait
+        }
+
+        return
+    }
+
     
     public func takePhoto() {
+        // setup photo output orientation
+        if let photoOutputConnection = self.photoOutput.connection(with: .video) {
+            switch UIDevice.current.orientation {
+            case .portrait:
+                photoOutputConnection.videoOrientation = .portrait
+            case .portraitUpsideDown:
+                photoOutputConnection.videoOrientation = .portraitUpsideDown
+            case .landscapeLeft:
+                photoOutputConnection.videoOrientation = .landscapeRight
+            case .landscapeRight:
+                photoOutputConnection.videoOrientation = .landscapeLeft
+            default:
+                break
+            }
+        }
         let photoSetting = AVCapturePhotoSettings()
         photoSetting.flashMode = .auto
         photoSetting.isHighResolutionPhotoEnabled = false
@@ -53,9 +86,50 @@ public class AVCaptureModel : NSObject, AVCapturePhotoCaptureDelegate, Observabl
         return
     }
     
+    public func photoImageSize() -> CGSize {
+        guard let image = self.image else { return .zero }
+        return image.size
+    }
+    
+    public func photoImageScaledSize( maxframeSize: CGSize ) -> CGSize {
+        guard let image = self.image else { return .zero }
+        switch image.imageOrientation {
+        case .up:
+            print("up")
+        case .down:
+            print("down")
+        case .left:
+            print("left")
+        case .right:
+            print("right")
+        default:
+            print("unknown")
+        }
+        if image.imageOrientation == .up || image.imageOrientation == .down {
+            let photoSize = photoImageSize()
+            let scaleValue = min(maxframeSize.width / photoSize.width, maxframeSize.height / photoSize.height)
+            let size = CGSize(width: photoSize.width * scaleValue, height: photoSize.height * scaleValue)
+            print("prefered size: \(size)")
+            return size
+        } else if image.imageOrientation == .left || image.imageOrientation == .right {
+            let photoSize = photoImageSize()
+            let scaleValue = min(maxframeSize.width / photoSize.width, maxframeSize.height / photoSize.height)
+            let tmpsize = CGSize(width: photoSize.width * scaleValue, height: photoSize.height * scaleValue)
+            let size = CGSize(width: tmpsize.height, height: tmpsize.width)
+            print("prefered size: \(tmpsize) \(size)")
+            return tmpsize
+        }
+        print("unknown photo orientation")
+        return .zero
+    }
+    
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         let imageData = photo.fileDataRepresentation()
         self.image = UIImage(data: imageData!)
+        print("taken photo size: \(self.image!.size)")
+        
+//        print("save into album")
+//        UIImageWriteToSavedPhotosAlbum(self.image!, nil, nil, nil)
     }
     
     func getImageFromSampleBuffer(sampleBuffer: CMSampleBuffer) ->UIImage? {

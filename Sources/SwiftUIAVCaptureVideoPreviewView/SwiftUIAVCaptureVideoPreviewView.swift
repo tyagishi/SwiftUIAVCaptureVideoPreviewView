@@ -71,12 +71,23 @@ public struct SwiftUIAVCaptureVideoPreviewView: UIViewRepresentable {
     public func makeUIView(context: Context) -> UIAVCaptureVideoPreviewView {
         let view = UIAVCaptureVideoPreviewView(frame: previewFrame, session: self.captureModel.captureSession)
         view.setupPreview(previewSize: previewFrame)
+        
+        // add border view for checking
+        let boarderView = UIView()
+        boarderView.frame = view.frame
+        boarderView.layer.borderColor = UIColor.green.cgColor
+        boarderView.layer.cornerRadius = 10
+        boarderView.layer.borderWidth = 10
+        
+        view.addSubview(boarderView)
+        
         return view
     }
     
     public func updateUIView(_ uiView: UIAVCaptureVideoPreviewView, context: Context) {
         print("in updateUIView")
         self.captureModel.updateInputOrientation(orientation: UIDevice.current.orientation)
+        self.captureModel.updateOutputOrientation(orientation: UIDevice.current.orientation)
         uiView.updateFrame(frame: previewFrame)
     }
 }
