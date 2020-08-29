@@ -16,6 +16,8 @@ public class AVCaptureModel : NSObject, AVCapturePhotoCaptureDelegate, Observabl
     @Published public var image: UIImage?
     @Published public var metadata: [String: Any] = [:]
     
+    public var printRect: CGRect = .zero
+
     public var photoDate: String {
         get {
             guard let tiff = metadata["{TIFF}"] as? [String:Any] else { return "TIFF" }
@@ -138,6 +140,7 @@ public class AVCaptureModel : NSObject, AVCapturePhotoCaptureDelegate, Observabl
         self.image = UIImage(data: imageData!)
 //        print("taken photo size: \(self.image!.size)")
 //        print(photo.metadata)
+
         self.metadata = photo.metadata
 //        print("save into album")
 //        UIImageWriteToSavedPhotosAlbum(self.image!, nil, nil, nil)
