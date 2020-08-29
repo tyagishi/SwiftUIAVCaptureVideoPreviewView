@@ -14,6 +14,15 @@ public class AVCaptureModel : NSObject, AVCapturePhotoCaptureDelegate, Observabl
     public var videoInput: AVCaptureDeviceInput!
     public var photoOutput: AVCapturePhotoOutput
     @Published public var image: UIImage?
+    @Published public var metadata: [String: Any] = [:]
+    
+    public var photoDate: String {
+        get {
+            guard let tiff = metadata["{TIFF}"] as? [String:Any] else { return "TIFF" }
+            guard let dateStr = tiff["DateTime"] as? String else { return "noDateTime" }
+            return dateStr
+        }
+    }
     
     public override init() {
         self.captureSession = AVCaptureSession()
@@ -127,8 +136,9 @@ public class AVCaptureModel : NSObject, AVCapturePhotoCaptureDelegate, Observabl
     public func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         let imageData = photo.fileDataRepresentation()
         self.image = UIImage(data: imageData!)
-        print("taken photo size: \(self.image!.size)")
-        
+//        print("taken photo size: \(self.image!.size)")
+//        print(photo.metadata)
+        self.metadata = photo.metadata
 //        print("save into album")
 //        UIImageWriteToSavedPhotosAlbum(self.image!, nil, nil, nil)
     }
