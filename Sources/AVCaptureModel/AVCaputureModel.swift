@@ -15,6 +15,7 @@ public class AVCaptureModel : NSObject, AVCapturePhotoCaptureDelegate, Observabl
     public var photoOutput: AVCapturePhotoOutput
     @Published public var image: UIImage?
     @Published public var metadata: [String: Any] = [:]
+    @Published public var snapImage:UIImage?
     
     public var printRect: CGRect = .zero
 
