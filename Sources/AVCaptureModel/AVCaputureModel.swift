@@ -33,6 +33,7 @@ public class AVCaptureModel : NSObject, AVCapturePhotoCaptureDelegate, Observabl
 
         guard captureSession.canAddOutput(photoOutput) else { return }
         captureSession.sessionPreset = .photo
+        captureSession.sessionPreset = .hd1280x720
         captureSession.addOutput(photoOutput)
         
         captureSession.commitConfiguration()
